@@ -1,0 +1,42 @@
+# generic files to ignore
+.*
+
+# python temp paths
+__pycache__/
+*.py[cod]
+
+# editors
+*~
+*.swp
+*.swo
+*#
+
+# QtCreator
+CMakeLists.txt.user
+
+# ms-windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# commonly used paths in blender
+/blender.bin
+/user-config.py
+
+# local patches
+/*.patch
+/*.diff
+
+# blend backup files
+/*.blend1
+/*.blend2
+*.blend1
+*.blend2
+
+
+# sublime projects
+*.sublime-project
+*.sublime-workspace
+
+# some working files
+run_regression.py
