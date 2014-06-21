@@ -7,7 +7,7 @@ from functools import namedtuple
 from config import exe_old, exe_new, output_old, output_new, file, output_result
 
 # start and end frame (both inclusive)
-start, end = (46, 64)
+start, end = (65, 65)
 
 # utility function
 percentage = lambda old, new: round((old / new - 1) * 100, 4)

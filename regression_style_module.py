@@ -88,7 +88,6 @@ types = (
     pyZDiscontinuityBP1D(),                                                  # 62
     pyLengthBP1D(),                                                          # 63
     pyShuffleBP1D(),                                                         # 64
-    pyIsOccludedByUP1D(0),                                                   # 65
     RoundCapShader(),                                                        # 66
     SquareCapShader(),                                                       # 67
 )
@@ -130,6 +129,8 @@ class predicateTestShader(StrokeShader):
                     print(types[frame], " has issues")
                     pass
 
+# 
+current = types[frame]
 
 # select chainingiterator
 cit = types[frame] if frame <= 9 else types[0]
@@ -141,14 +142,14 @@ Operators.recursive_split(func, pyParameterUP0D(0.2, 0.8), NotUP1D(pyHigherNumbe
 Operators.sort(pyLengthBP1D())
 
 # chaining iterators
-if frame <= 9:
+if current.name.endswith("Iterator"):
     shaders_list = [   
         SamplingShader(10), 
         ConstantThicknessShader(10),
     ]
 
 # stroke shaders
-elif frame <= 45:
+elif current.name.endswith("Shader"):
     shaders_list = [
         SamplingShader(10), 
         ConstantThicknessShader(10),
@@ -156,13 +157,14 @@ elif frame <= 45:
     ]
 
 # predicates
-else:
+elif current.name.endswith(["BP1D", "UP1D", "UP0D", "BP0D"]):
     shaders_list = [
         SamplingShader(10),
         ConstantThicknessShader(10),
         predicateTestShader(types[frame]),
     ]
-
+else:
+    raise RuntimeError("unexpected type: " + current.name)
 # start timing
 if with_cProfile:
     if "new" in sys.argv[0]:

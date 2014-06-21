@@ -66,9 +66,8 @@ items = (
         "pyZDiscontinuityBP1D",                                 #  62
         "pyLengthBP1D",                                         #  63
         "pyShuffleBP1D",                                        #  64
-        "pyIsOccludedByUP1D",                                   #  65
-        "RoundCapShader",                                       #  66
-        "SquareCapShader",                                      #  67
+        "RoundCapShader",                                       #  65
+        "SquareCapShader",                                      #  66
 )
 
 # code used to generate above sequence
@@ -142,9 +141,8 @@ types = (
     "pyZDiscontinuityBP1D()",                                                 #  62
     "pyLengthBP1D()",                                                         #  63
     "pyShuffleBP1D()",                                                        #  64
-    "pyIsOccludedByUP1D(0)",                                                  #  65
-    "RoundCapShader()",                                                       #  66
-    "SquareCapShader()",                                                      #  67
+    "RoundCapShader()",                                                       #  65
+    "SquareCapShader()",                                                      #  66
 )
 
 
@@ -178,3 +176,4 @@ types = (
 #pySilhouetteFirstBP1D(),
 #pyNatureBP1D(),
 #pyViewMapGradientNormBP1D(5),
+#pyIsOccludedByUP1D(0),                                  
