@@ -8,14 +8,14 @@ from functools import namedtuple
 from config import exe_old, exe_new, output_old, output_new, file, output_result
 
 # start and end frame (both inclusive)
-start, end = (64, 64)
+start, end = (45, 66)
 
 # utility function
 percentage = lambda old, new: round((old / new - 1) * 100, 4)
+Frame = namedtuple("Frame", ["name", "time"])
 
-def run_render(args):
-    """ Runs `args`, logs results (also handles errors) """
-    Frame = namedtuple("Frame", ["name", "time"])
+def run_render(*args):
+    """ Runs `args`, logs results (also handles errors) """    
     with subprocess.Popen(" ".join(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as p:
         output = list()
         it = iter(p.stdout.readline, b'')
@@ -49,25 +49,22 @@ def check_regressions(path_old, path_new, path_output, names):
 
 
 def run_comparison(*args):
-    if len(args) == 1:
-        ((old, new, output),) = args
-    else:
-        old, new, output = args
+    old, new, output = args
     """ Runs ImageMagick, logs results """
     cmd = ("compare -metric MAE {} {} {}".format(old, new, output))
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    for line in p.stdout.readlines():
-        if not line.startswith(b"0"):
+    with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as p:
+        line = p.stdout.readline()
+        if len(line) > 5:
             n = int(old[-8:-4])
-            print(n, output.split("/")[-1], " has regressions!")
-            break
-    else:
-        # deletes the images
-        os.remove(output)
-        os.remove(new)
-        os.remove(old)
-        # log here if you want to know all went well
-        pass 
+            diff = float(line[:-1].split(b"(")[-1])
+            print("{:2} {:50} has regressions! size: {:12}".format(n, output.split("/")[-1], diff))
+        else:
+            # deletes the images
+            os.remove(output)
+            os.remove(new)
+            os.remove(old)
+
+
 
 
 def main():
@@ -76,9 +73,8 @@ def main():
     # commands we'll execute. formatting them this way is preferable for some types of execution
     old = (exe_old, file, "-b", "-o", output_old, "-F", "PNG", "-s", str(start), "-e", str(end), "-a")
     new = (exe_new, file, "-b", "-o", output_new, "-F", "PNG", "-s", str(start), "-e", str(end), "-a")
-    # process the results
     results = list()
-    for (name, time_old), (_, time_new) in zip(run_render(old), run_render(new)):
+    for (name, time_old), (_, time_new) in zip(run_render(*old), run_render(*new)):
         result = Result(name, time_old, time_new, percentage(time_old, time_new))
         print("{0.name:54} {0.perc:8.2f}%  {0.old:10.4f}s {0.new:5.4f}s".format(result))
         results.append(result)
@@ -86,11 +82,15 @@ def main():
     names, times_old, times_new, _ = zip(*results)
     old, new = sum(times_old), sum(times_new)
     print("old: {:5.3f}s, new {:5.3f}s, delta {:5.3f}s, perc {:5.2f}%".format(old, new, old - new, percentage(old,new)))
+    print("--- ")
     check_regressions(output_old, output_new, output_result, names)
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except RuntimeError:
+        print("Error in style module")
     
 
 
