@@ -1,13 +1,14 @@
 import os
 import subprocess
+import multiprocessing as mp
 
-import concurrent.futures
 from functools import namedtuple
+
 
 from config import exe_old, exe_new, output_old, output_new, file, output_result
 
 # start and end frame (both inclusive)
-start, end = (65, 65)
+start, end = (64, 64)
 
 # utility function
 percentage = lambda old, new: round((old / new - 1) * 100, 4)
@@ -24,7 +25,7 @@ def run_render(args):
                 name, time = line.split()[-2:]
                 output.append(Frame(str(name, 'utf-8'), round(float(time), 5)))
             # an error has occured in executing the style module: log the error and stop the process
-            if line.startswith(b"Error ex"):
+            if line.startswith(b"Error"):
                 for line in it:
                     # Fra* lines are irrelevant, so skip them
                     if not line.startswith(b"Fra"):
@@ -41,20 +42,24 @@ def check_regressions(path_old, path_new, path_output, names):
     # formats those into paths 
     commands = ((path_old + filename, path_new + filename, path_output + "/" + name + '.png') for filename, name in zip(files_to_check, names))
     # (try to) run these concurrently
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        for result in executor.map(run_comparison, commands):
-            # handeling of the result is done in `run_comparison`.
-            pass 
+    pool = mp.Pool(processes=8)
+    for result in (pool.apply_async(run_comparison, args=cmd) for cmd in commands):
+        result.get()
 
 
-def run_comparison(args):
+
+def run_comparison(*args):
+    if len(args) == 1:
+        ((old, new, output),) = args
+    else:
+        old, new, output = args
     """ Runs ImageMagick, logs results """
-    old, new, output = args
     cmd = ("compare -metric MAE {} {} {}".format(old, new, output))
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     for line in p.stdout.readlines():
         if not line.startswith(b"0"):
-            print(output, " has regressions!")
+            n = int(old[-8:-4])
+            print(n, output.split("/")[-1], " has regressions!")
             break
     else:
         # deletes the images

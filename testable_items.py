@@ -145,7 +145,7 @@ types = (
     "SquareCapShader()",                                                      #  66
 )
 
-
+d = d.normalized() * caplen_beg if d.length != 0 else Vector((0, 0))
 
 
 # predicates not currently used (they lead to crashes or)

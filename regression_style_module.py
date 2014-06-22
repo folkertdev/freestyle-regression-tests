@@ -157,14 +157,21 @@ elif current.name.endswith("Shader"):
     ]
 
 # predicates
-elif current.name.endswith(["BP1D", "UP1D", "UP0D", "BP0D"]):
+elif current.name.endswith(("BP1D", "UP1D", "UP0D", "BP0D")):
     shaders_list = [
         SamplingShader(10),
         ConstantThicknessShader(10),
         predicateTestShader(types[frame]),
     ]
 else:
-    raise RuntimeError("unexpected type: " + current.name)
+    if current.name == "pyParameterUP0DGoodOne": # exceptions ...
+        shaders_list = [
+            SamplingShader(10),
+            ConstantThicknessShader(10),
+            predicateTestShader(types[frame]),
+        ]
+    else:
+        raise RuntimeError("unexpected type: " + current.name)
 # start timing
 if with_cProfile:
     if "new" in sys.argv[0]:
