@@ -7,8 +7,6 @@ from freestyle.functions import *
 from freestyle.chainingiterators import *
 from freestyle.utils import *
 
-# from _freestyle import LengthDependingThicknessShader
-
 import mathutils, bpy, time, sys, cProfile, pstats
 from mathutils import Vector, Color
 from contextlib import contextmanager
